@@ -7,6 +7,7 @@
 // Public node modules.
 const _ = require('lodash');
 const request = require('request');
+const appleSignin = require("apple-signin");
 
 // Purest strategies.<
 const Purest = require('purest');

@@ -126,6 +126,9 @@ const getProfile = async (provider, query, callback) => {
     .get();
 
   switch (provider) {
+    case 'apple': {
+      break;
+    }
     case 'discord': {
       const discord = new Purest({
         provider: 'discord',

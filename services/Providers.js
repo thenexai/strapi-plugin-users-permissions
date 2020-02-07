@@ -7,6 +7,7 @@
 // Public node modules.
 const _ = require('lodash');
 const request = require('request');
+const appleSignin = require("apple-signin");
 
 // Purest strategies.<
 const Purest = require('purest');
@@ -126,6 +127,22 @@ const getProfile = async (provider, query, callback) => {
     .get();
 
   switch (provider) {
+    case 'apple': {
+
+      appleSignin.verifyIdToken(access_token).then(result => {
+        var randomInt = Math.floor(Math.random() * Math.floor(9999));
+
+        callback(null, {
+          username: result.email.split('@')[0] + randomInt.toString(),
+          email: result.email,
+        });
+      }).catch(error => {
+        // Token is not verified
+        callback(error);
+      });
+
+      break;
+    }
     case 'discord': {
       const discord = new Purest({
         provider: 'discord',
@@ -210,6 +227,8 @@ const getProfile = async (provider, query, callback) => {
       };
       const google = new Purest({ provider: 'google', config });
 
+      var randomInt = Math.floor(Math.random() * Math.floor(9999));
+
       google
         .query('oauth')
         .get('tokeninfo')
@@ -219,7 +238,7 @@ const getProfile = async (provider, query, callback) => {
             callback(err);
           } else {
             callback(null, {
-              username: body.email.split('@')[0],
+              username: body.email.split('@')[0] + randomInt.toString(),
               email: body.email,
             });
           }

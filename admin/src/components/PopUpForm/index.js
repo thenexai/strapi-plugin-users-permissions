@@ -58,6 +58,8 @@ class PopUpForm extends React.Component {
     switch (this.props.dataToEdit) {
       case 'discord':
         return `${strapi.backendURL}/connect/discord/callback`;
+      case 'apple':
+        return `${strapi.backendURL}/connect/apple/callback`;
       case 'facebook':
         return `${strapi.backendURL}/connect/facebook/callback`;
       case 'google':
@@ -174,13 +176,13 @@ class PopUpForm extends React.Component {
                   includes(value, 'callback') || includes(value, 'redirect_uri')
                     ? 'redirectURL.front-end'
                     : value
-                }.label`,
+                  }.label`,
               }}
               name={`${settingType}.${dataToEdit}.${value}`}
               onFocus={
                 includes(value, 'callback') || includes(value, 'redirect_uri')
                   ? this.handleFocus
-                  : () => {}
+                  : () => { }
               }
               onBlur={
                 includes(value, 'callback') || includes(value, 'redirect_uri')
@@ -206,7 +208,7 @@ class PopUpForm extends React.Component {
               }}
               name="noName"
               type="text"
-              onChange={() => {}}
+              onChange={() => { }}
               value={this.getRedirectURIProviderConf()}
               validations={{}}
             />
@@ -310,8 +312,8 @@ class PopUpForm extends React.Component {
       display && en[display] ? (
         <FormattedMessage id={`users-permissions.${display}`} />
       ) : (
-        <span>{capitalize(dataToEdit)}</span>
-      );
+          <span>{capitalize(dataToEdit)}</span>
+        );
 
     return (
       <Modal isOpen={isOpen} onToggle={this.context.unsetDataToEdit}>

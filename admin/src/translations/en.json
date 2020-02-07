@@ -81,6 +81,7 @@
   "PopUpForm.Providers.discord.providerConfig.redirectURL": "The redirect URL to add in your Discord application configurations",
   "PopUpForm.Providers.enabled.description": "If disabled, users won't be able to use this provider.",
   "PopUpForm.Providers.enabled.label": "Enable",
+  "PopUpForm.Providers.apple.providerConfig.redirectURL": "The redirect URL to add in your Apple application configurations",
   "PopUpForm.Providers.facebook.providerConfig.redirectURL": "The redirect URL to add in your Facebook application configurations",
   "PopUpForm.Providers.github.providerConfig.redirectURL": "The redirect URL to add in your GitHub application configurations",
   "PopUpForm.Providers.google.providerConfig.redirectURL": "The redirect URL to add in your Google application configurations",
@@ -100,7 +101,6 @@
   "PopUpForm.header.edit.email-templates": "Edit Email Templates",
   "PopUpForm.header.edit.providers": "Edit Provider",
   "PopUpForm.inputSelect.providers.label": "Choose the provider",
-
   "components.Input.error.password.length": "Password is too short",
   "notification.error.delete": "An error occurred while trying to delete the item",
   "notification.error.fetch": "An error occurred while trying to fetch data",

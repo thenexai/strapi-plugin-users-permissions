@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-users-permissions",
-  "version": "3.0.0-beta.18.4",
+  "version": "3.0.0-beta.18.7",
   "description": "Protect your API with a full-authentication process based on JWT",
   "strapi": {
     "name": "Roles & Permissions",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "apple-signin": "^1.0.9",
+    "@purest/providers": "^1.0.1",
     "bcryptjs": "^2.4.3",
     "classnames": "^2.2.6",
     "grant-koa": "^4.6.0",
@@ -21,7 +22,7 @@
     "jsonwebtoken": "^8.1.0",
     "koa2-ratelimit": "^0.9.0",
     "lodash": "^4.17.11",
-    "purest": "^2.0.1",
+    "purest": "3.1.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-intl": "^2.8.0",
@@ -32,8 +33,8 @@
     "reactstrap": "^5.0.0",
     "redux-saga": "^0.16.0",
     "request": "^2.83.0",
-    "strapi-helper-plugin": "3.0.0-beta.18.4",
-    "strapi-utils": "3.0.0-beta.18.4",
+    "strapi-helper-plugin": "3.0.0-beta.18.7",
+    "strapi-utils": "3.0.0-beta.18.7",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
@@ -60,5 +61,5 @@
     "npm": ">=6.0.0"
   },
   "license": "MIT",
-  "gitHead": "f0028241c8845ee385f2bbc6333052c028666f47"
+  "gitHead": "c85658a19b8fef0f3164c19693a45db305dc07a9"
 }

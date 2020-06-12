@@ -129,9 +129,25 @@ module.exports = {
           })
         );
       } else {
+
+        // Mooncards Start: creating session
+        let session;
+        if (user && user.id) {
+            session = await strapi.services.session.create({
+                blocked: false,
+                owner: user.id,
+            });
+            session = sanitizeEntity(session, {
+                model: strapi.models.session
+            });
+        }
+        // Mooncards End: creating session
+
         ctx.send({
+          sid: session.id, // Mooncards Add session to frontend
           jwt: strapi.plugins['users-permissions'].services.jwt.issue({
             id: user.id,
+            sid: session.id // Mooncards Add session to jwt
           }),
           user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
             model: strapi.query('user', 'users-permissions').model,
@@ -164,9 +180,25 @@ module.exports = {
         return ctx.badRequest(null, error === 'array' ? error[0] : error);
       }
 
+      // Mooncards Start: creating session
+      let session;
+      if (user && user.id) {
+          session = await strapi.services.session.create({
+              blocked: false,
+              owner: user.id,
+          });
+          session = sanitizeEntity(session, {
+              model: strapi.models.session
+          });
+      }
+      // Mooncards End: creating session
+
+                  
       ctx.send({
+        sid: session.id, // Mooncards Add session to frontend
         jwt: strapi.plugins['users-permissions'].services.jwt.issue({
           id: user.id,
+          sid: session.id // Mooncards Add session to jwt
         }),
         user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
           model: strapi.query('user', 'users-permissions').model,
@@ -491,9 +523,21 @@ module.exports = {
 
       const user = await strapi.query('user', 'users-permissions').create(params);
 
-      const jwt = strapi.plugins['users-permissions'].services.jwt.issue(
-        _.pick(user.toJSON ? user.toJSON() : user, ['id'])
-      );
+      // Mooncards Start: creating session
+      let session;
+      if (user && user.id) {
+          session = await strapi.services.session.create({
+              blocked: false,
+              owner: user.id,
+          });
+          session = sanitizeEntity(session, {
+              model: strapi.models.session
+          });
+      }
+      // Mooncards End: creating session
+      const jwt = strapi.plugins['users-permissions'].services.jwt.issue(Object.assign({}, _.pick(user.toJSON ? user.toJSON() : user, ['id']), {
+              sid: session.id // Mooncards Add session to jwt
+      }));
 
       if (settings.email_confirmation) {
         const settings = await pluginStore.get({ key: 'email' }).then(storeEmail => {
@@ -555,6 +599,7 @@ module.exports = {
         });
       } else {
         ctx.send({
+          sid: session.id, // Mooncards Add session to frontend
           jwt,
           user: sanitizedUser,
         });

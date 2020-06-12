@@ -12,6 +12,8 @@ const request = require('request');
 const purest = require('purest')({ request });
 const purestConfig = require('@purest/providers');
 
+const appleSignin = require("apple-signin");
+
 /**
  * Connect thanks to a third-party provider.
  *
@@ -122,6 +124,24 @@ const getProfile = async (provider, query, callback) => {
     .get();
 
   switch (provider) {
+
+    case 'apple': {
+
+      appleSignin.verifyIdToken(access_token).then(result => {
+        var randomInt = Math.floor(Math.random() * Math.floor(9999));
+
+        callback(null, {
+          username: result.email.split('@')[0] + randomInt.toString(),
+          email: result.email,
+        });
+      }).catch(error => {
+        // Token is not verified
+        callback(error);
+      });
+
+      break;
+    }
+
     case 'discord': {
       const discord = purest({
         provider: 'discord',
@@ -184,7 +204,7 @@ const getProfile = async (provider, query, callback) => {
     }
     case 'google': {
       const google = purest({ provider: 'google', config: purestConfig });
-
+      var randomInt = Math.floor(Math.random() * Math.floor(9999));
       google
         .query('oauth')
         .get('tokeninfo')
@@ -194,7 +214,7 @@ const getProfile = async (provider, query, callback) => {
             callback(err);
           } else {
             callback(null, {
-              username: body.email.split('@')[0],
+              username: body.email.split('@')[0] + randomInt.toString(),
               email: body.email,
             });
           }

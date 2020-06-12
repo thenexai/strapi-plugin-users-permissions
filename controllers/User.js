@@ -28,14 +28,9 @@ module.exports = {
 
     if (_.has(ctx.query, '_q')) {
       // use core strapi query to search for users
-      users = await strapi
-        .query('user', 'users-permissions')
-        .search(ctx.query, populate);
+      users = await strapi.query('user', 'users-permissions').search(ctx.query, populate);
     } else {
-      users = await strapi.plugins['users-permissions'].services.user.fetchAll(
-        ctx.query,
-        populate
-      );
+      users = await strapi.plugins['users-permissions'].services.user.fetchAll(ctx.query, populate);
     }
 
     const data = users.map(sanitizeUser);
@@ -50,13 +45,23 @@ module.exports = {
     const user = ctx.state.user;
 
     if (!user) {
-      return ctx.badRequest(null, [
-        { messages: [{ id: 'No authorization header was found' }] },
-      ]);
+      return ctx.badRequest(null, [{ messages: [{ id: 'No authorization header was found' }] }]);
     }
 
     const data = sanitizeUser(user);
     ctx.send(data);
+  },
+
+  /**
+   * Retrieve user count.
+   * @return {Number}
+   */
+
+  async count(ctx) {
+    if (ctx.query._q) {
+      return await strapi.plugins['users-permissions'].services.user.countSearch(ctx.query);
+    }
+    return await strapi.plugins['users-permissions'].services.user.count(ctx.query);
   },
 
   /**
@@ -113,9 +118,7 @@ module.exports = {
     }
 
     if (advanced.unique_email) {
-      const userWithSameEmail = await strapi
-        .query('user', 'users-permissions')
-        .findOne({ email });
+      const userWithSameEmail = await strapi.query('user', 'users-permissions').findOne({ email });
 
       if (userWithSameEmail) {
         return ctx.badRequest(
@@ -144,11 +147,9 @@ module.exports = {
     }
 
     try {
-      const data = await strapi.plugins['users-permissions'].services.user.add(
-        user
-      );
+      const data = await strapi.plugins['users-permissions'].services.user.add(user);
 
-      ctx.created(data);
+      ctx.created(sanitizeUser(data));
     } catch (error) {
       ctx.badRequest(null, formatError(error));
     }
@@ -183,11 +184,7 @@ module.exports = {
       return ctx.badRequest('username.notNull');
     }
 
-    if (
-      _.has(ctx.request.body, 'password') &&
-      !password &&
-      user.provider === 'local'
-    ) {
+    if (_.has(ctx.request.body, 'password') && !password && user.provider === 'local') {
       return ctx.badRequest('password.notNull');
     }
 
@@ -209,9 +206,7 @@ module.exports = {
     }
 
     if (_.has(ctx.request.body, 'email') && advancedConfigs.unique_email) {
-      const userWithSameEmail = await strapi
-        .query('user', 'users-permissions')
-        .findOne({ email });
+      const userWithSameEmail = await strapi.query('user', 'users-permissions').findOne({ email });
 
       if (userWithSameEmail && userWithSameEmail.id != id) {
         return ctx.badRequest(
@@ -233,12 +228,9 @@ module.exports = {
       delete updateData.password;
     }
 
-    const data = await strapi.plugins['users-permissions'].services.user.edit(
-      { id },
-      updateData
-    );
+    const data = await strapi.plugins['users-permissions'].services.user.edit({ id }, updateData);
 
-    ctx.send(data);
+    ctx.send(sanitizeUser(data));
   },
 
   /**
@@ -247,16 +239,15 @@ module.exports = {
    */
   async destroy(ctx) {
     const { id } = ctx.params;
-    const data = await strapi.plugins['users-permissions'].services.user.remove(
-      { id }
-    );
-    ctx.send(data);
+    const data = await strapi.plugins['users-permissions'].services.user.remove({ id });
+    ctx.send(sanitizeUser(data));
   },
 
   async destroyAll(ctx) {
-    const data = await strapi.plugins[
-      'users-permissions'
-    ].services.user.removeAll(ctx.params, ctx.request.query);
+    const data = await strapi.plugins['users-permissions'].services.user.removeAll(
+      {},
+      ctx.request.query
+    );
 
     ctx.send(data);
   },

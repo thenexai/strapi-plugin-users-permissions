@@ -48,14 +48,14 @@ module.exports = {
   },
 
   verify(token) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       jwt.verify(
         token,
         _.get(strapi.plugins, ['users-permissions', 'config', 'jwtSecret']),
         {},
-        function(err, tokenPayload = {}) {
+        function (err, tokenPayload = {}) {
           if (err) {
-            return reject(new Error('Invalid token.'));
+            return reject(new Error('Please Sign In Again. 请重新登录!'));
           }
           resolve(tokenPayload);
         }

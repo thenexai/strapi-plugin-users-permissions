@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const _ = require('lodash');
 const grant = require('grant-koa');
 const { sanitizeEntity } = require('strapi-utils');
+const { getAbsoluteServerUrl } = require('strapi-utils');
 
 const emailRegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const formatError = error => [
@@ -129,25 +130,24 @@ module.exports = {
           })
         );
       } else {
-
-        // Mooncards Start: creating session
+        // Yoo.cash Start: creating session
         let session;
         if (user && user.id) {
-            session = await strapi.services.session.create({
-                blocked: false,
-                owner: user.id,
-            });
-            session = sanitizeEntity(session, {
-                model: strapi.models.session
-            });
+          session = await strapi.services.session.create({
+            blocked: false,
+            owner: user.id,
+          });
+          session = sanitizeEntity(session, {
+            model: strapi.models.session
+          });
         }
-        // Mooncards End: creating session
+        // Yoo.cash End: creating session
 
         ctx.send({
-          sid: session.id, // Mooncards Add session to frontend
+          sid: session.id, // Yoo.cash Add session to frontend
           jwt: strapi.plugins['users-permissions'].services.jwt.issue({
             id: user.id,
-            sid: session.id // Mooncards Add session to jwt
+            sid: session.id // Yoo.cash Add session to jwt
           }),
           user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
             model: strapi.query('user', 'users-permissions').model,
@@ -180,25 +180,24 @@ module.exports = {
         return ctx.badRequest(null, error === 'array' ? error[0] : error);
       }
 
-      // Mooncards Start: creating session
+      // Yoo.cash Start: creating session
       let session;
       if (user && user.id) {
-          session = await strapi.services.session.create({
-              blocked: false,
-              owner: user.id,
-          });
-          session = sanitizeEntity(session, {
-              model: strapi.models.session
-          });
+        session = await strapi.services.session.create({
+          blocked: false,
+          owner: user.id,
+        });
+        session = sanitizeEntity(session, {
+          model: strapi.models.session
+        });
       }
-      // Mooncards End: creating session
+      // Yoo.cash End: creating session
 
-                  
       ctx.send({
-        sid: session.id, // Mooncards Add session to frontend
+        sid: session.id, // Yoo.cash Add session to frontend
         jwt: strapi.plugins['users-permissions'].services.jwt.issue({
           id: user.id,
-          sid: session.id // Mooncards Add session to jwt
+          sid: session.id // Yoo.cash Add session to jwt
         }),
         user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
           model: strapi.query('user', 'users-permissions').model,
@@ -230,15 +229,14 @@ module.exports = {
         );
       }
 
-      // Delete the current code
-      user.resetPasswordToken = null;
-
-      user.password = await strapi.plugins['users-permissions'].services.user.hashPassword({
+      const password = await strapi.plugins['users-permissions'].services.user.hashPassword({
         password: params.password,
       });
 
       // Update the user.
-      await strapi.query('user', 'users-permissions').update({ id: user.id }, user);
+      await strapi
+        .query('user', 'users-permissions')
+        .update({ id: user.id }, { resetPasswordToken: null, password });
 
       ctx.send({
         jwt: strapi.plugins['users-permissions'].services.jwt.issue({
@@ -282,8 +280,7 @@ module.exports = {
       .get();
 
     const [requestPath] = ctx.request.url.split('?');
-    const provider =
-      process.platform === 'win32' ? requestPath.split('\\')[2] : requestPath.split('/')[2];
+    const provider = requestPath.split('/')[2];
 
     if (!_.get(grantConfig[provider], 'enabled')) {
       return ctx.badRequest(null, 'This provider is disabled.');
@@ -336,9 +333,6 @@ module.exports = {
     // Generate random token.
     const resetPasswordToken = crypto.randomBytes(64).toString('hex');
 
-    // Set the property code.
-    user.resetPasswordToken = resetPasswordToken;
-
     const settings = await pluginStore.get({ key: 'email' }).then(storeEmail => {
       try {
         return storeEmail['reset_password'].options;
@@ -351,16 +345,13 @@ module.exports = {
       key: 'advanced',
     });
 
+    const userInfo = _.omit(user, ['password', 'resetPasswordToken', 'role', 'provider']);
+
     settings.message = await strapi.plugins['users-permissions'].services.userspermissions.template(
       settings.message,
       {
         URL: advanced.email_reset_password,
-        USER: _.omit(user.toJSON ? user.toJSON() : user, [
-          'password',
-          'resetPasswordToken',
-          'role',
-          'provider',
-        ]),
+        USER: userInfo,
         TOKEN: resetPasswordToken,
       }
     );
@@ -368,12 +359,7 @@ module.exports = {
     settings.object = await strapi.plugins['users-permissions'].services.userspermissions.template(
       settings.object,
       {
-        USER: _.omit(user.toJSON ? user.toJSON() : user, [
-          'password',
-          'resetPasswordToken',
-          'role',
-          'provider',
-        ]),
+        USER: userInfo,
       }
     );
 
@@ -395,7 +381,7 @@ module.exports = {
     }
 
     // Update the user.
-    await strapi.query('user', 'users-permissions').update({ id: user.id }, user);
+    await strapi.query('user', 'users-permissions').update({ id: user.id }, { resetPasswordToken });
 
     ctx.send({ ok: true });
   },
@@ -523,20 +509,21 @@ module.exports = {
 
       const user = await strapi.query('user', 'users-permissions').create(params);
 
-      // Mooncards Start: creating session
+      // Yoo.cash Start: creating session
       let session;
       if (user && user.id) {
-          session = await strapi.services.session.create({
-              blocked: false,
-              owner: user.id,
-          });
-          session = sanitizeEntity(session, {
-              model: strapi.models.session
-          });
+        session = await strapi.services.session.create({
+          blocked: false,
+          owner: user.id,
+        });
+        session = sanitizeEntity(session, {
+          model: strapi.models.session
+        });
       }
-      // Mooncards End: creating session
+      // Yoo.cash End: creating session
+
       const jwt = strapi.plugins['users-permissions'].services.jwt.issue(Object.assign({}, _.pick(user.toJSON ? user.toJSON() : user, ['id']), {
-              sid: session.id // Mooncards Add session to jwt
+        sid: session.id // Yoo.cash Add session to jwt
       }));
 
       if (settings.email_confirmation) {
@@ -551,7 +538,7 @@ module.exports = {
         settings.message = await strapi.plugins[
           'users-permissions'
         ].services.userspermissions.template(settings.message, {
-          URL: `${strapi.config.server.url}/auth/email-confirmation`,
+          URL: `${getAbsoluteServerUrl(strapi.config)}/auth/email-confirmation`,
           USER: _.omit(user.toJSON ? user.toJSON() : user, [
             'password',
             'resetPasswordToken',
@@ -599,7 +586,7 @@ module.exports = {
         });
       } else {
         ctx.send({
-          sid: session.id, // Mooncards Add session to frontend
+          sid: session.id, // Yoo.cash Add session to frontend
           jwt,
           user: sanitizedUser,
         });
@@ -607,9 +594,9 @@ module.exports = {
     } catch (err) {
       const adminError = _.includes(err.message, 'username')
         ? {
-            id: 'Auth.form.error.username.taken',
-            message: 'Username already taken',
-          }
+          id: 'Auth.form.error.username.taken',
+          message: 'Username already taken',
+        }
         : { id: 'Auth.form.error.email.taken', message: 'Email already taken' };
 
       ctx.badRequest(null, formatError(adminError));
@@ -696,16 +683,13 @@ module.exports = {
       }
     });
 
+    const userInfo = _.omit(user, ['password', 'resetPasswordToken', 'role', 'provider']);
+
     settings.message = await strapi.plugins['users-permissions'].services.userspermissions.template(
       settings.message,
       {
-        URL: `${strapi.config.server.url}/auth/email-confirmation`,
-        USER: _.omit(user.toJSON ? user.toJSON() : user, [
-          'password',
-          'resetPasswordToken',
-          'role',
-          'provider',
-        ]),
+        URL: `${getAbsoluteServerUrl(strapi.config)}/auth/email-confirmation`,
+        USER: userInfo,
         CODE: jwt,
       }
     );
@@ -713,12 +697,7 @@ module.exports = {
     settings.object = await strapi.plugins['users-permissions'].services.userspermissions.template(
       settings.object,
       {
-        USER: _.omit(user.toJSON ? user.toJSON() : user, [
-          'password',
-          'resetPasswordToken',
-          'role',
-          'provider',
-        ]),
+        USER: userInfo,
       }
     );
 

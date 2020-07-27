@@ -160,13 +160,13 @@ class PopUpForm extends React.Component {
                   includes(value, 'callback') || includes(value, 'redirect_uri')
                     ? 'redirectURL.front-end'
                     : value
-                }.label`,
+                  }.label`,
               }}
               name={`${settingType}.${dataToEdit}.${value}`}
               onFocus={
                 includes(value, 'callback') || includes(value, 'redirect_uri')
                   ? this.handleFocus
-                  : () => {}
+                  : () => { }
               }
               onBlur={
                 includes(value, 'callback') || includes(value, 'redirect_uri')
@@ -192,7 +192,7 @@ class PopUpForm extends React.Component {
               }}
               name="noName"
               type="text"
-              onChange={() => {}}
+              onChange={() => { }}
               value={this.getRedirectURIProviderConf()}
               validations={{}}
             />
@@ -204,7 +204,7 @@ class PopUpForm extends React.Component {
     const params = {
       link: (
         <a
-          href="https://github.com/strapi/strapi/blob/master/docs/3.0.0-beta.x/guides/authentication.md#templating-emails"
+          href="https://strapi.io/documentation/v3.x/plugins/users-permissions.html#templating-emails"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -286,8 +286,8 @@ class PopUpForm extends React.Component {
       display && en[display] ? (
         <FormattedMessage id={`users-permissions.${display}`} />
       ) : (
-        <span>{capitalize(dataToEdit)}</span>
-      );
+          <span>{capitalize(dataToEdit)}</span>
+        );
 
     return (
       <Modal isOpen={isOpen} onToggle={this.context.unsetDataToEdit}>

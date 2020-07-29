@@ -12,6 +12,12 @@ const request = require('request');
 const purest = require('purest')({ request });
 const purestConfig = require('@purest/providers');
 
+const AppleAuth = require('apple-auth');
+const jwt = require("jsonwebtoken");
+
+const { Wechat } = require('wechat-jssdk');
+const { google } = require('googleapis');
+
 
 /**
  * Connect thanks to a third-party provider.
@@ -125,15 +131,12 @@ const getProfile = async (provider, query, callback) => {
   switch (provider) {
 
     case 'weixin': {
-      const { Wechat } = require('wechat-jssdk');
-
       const wx = new Wechat({
         "appId": grant.weixin.key,
         "appSecret": grant.weixin.secret,
       });
       wx.oauth.getUserInfo(access_token)
         .then(function (result) {
-
           // The gender of an ordinary user. 1: male; 2: female.
           var gender = "Secret";
           if (result.sex == 1) {
@@ -141,7 +144,6 @@ const getProfile = async (provider, query, callback) => {
           } else if (result.sex == 2) {
             gender = "Girl";
           }
-
           var uid = "wx" + result.unionid;
           callback(null, {
             username: uid,
@@ -159,20 +161,37 @@ const getProfile = async (provider, query, callback) => {
     }
 
     case 'apple': {
+      const auth = new AppleAuth(
+        {
+          // use the bundle ID as client ID for native apps, else use the service ID for web-auth flows
+          // https://forums.developer.apple.com/thread/118135
+          client_id: grant.apple.key,
+          team_id: "C689VFQ237",
+          redirect_uri: "https://server.yoo.cash/auth/apple/callback", // does not matter here, as this is already the callback that verifies the token after the redirection
+          key_id: "WJ67SNFR3R",
+          scope: "name email"
+        },
+        grant.apple.secret.replace(/\|/g, "\n"),
+        "text"
+      );
 
-      const appleSignin = require("apple-signin");
+      auth.accessToken(access_token).then(resp => {
+        const idToken = jwt.decode(resp.id_token);
+        const userID = "ap" + idToken.sub;
 
-      appleSignin.verifyIdToken(access_token).then(result => {
-        var randomInt = Math.floor(Math.random() * Math.floor(9999));
+        // `userEmail` and `userName` will only be provided for the initial authorization with your app
+        const userEmail = idToken.email;
+        const userName = `${query.firstName} ${query.lastName}`;
 
         callback(null, {
-          username: result.email.split('@')[0] + randomInt.toString(),
-          email: result.email,
+          username: userID,
+          providerUID: idToken.sub,
+          email: userEmail,
+          name: userName,
         });
       }).catch(error => {
-        // Token is not verified
         callback(error);
-      });
+      })
 
       break;
     }
@@ -239,7 +258,6 @@ const getProfile = async (provider, query, callback) => {
     }
 
     case 'google': {
-      var google = require('googleapis').google;
       var oauth2Client = new google.auth.OAuth2();
       oauth2Client.setCredentials({ access_token: access_token });
       var oauth2 = google.oauth2({
@@ -251,6 +269,7 @@ const getProfile = async (provider, query, callback) => {
           if (err) {
             callback(err);
           } else {
+            console.log(res);
             var uid = "gg" + res.data.id;
             callback(null, {
               username: uid,

@@ -57,6 +57,8 @@ class PopUpForm extends React.Component {
     switch (this.props.dataToEdit) {
       case 'apple':
         return `${strapi.backendURL}/connect/apple/callback`;
+      case 'weixin':
+        return `${strapi.backendURL}/connect/weixin/callback`;
       case 'discord':
         return `${strapi.backendURL}/connect/discord/callback`;
       case 'facebook':

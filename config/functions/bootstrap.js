@@ -24,6 +24,14 @@ module.exports = async () => {
       enabled: true,
       icon: 'envelope',
     },
+    weixin: {
+      enabled: false,
+      icon: 'weixin',
+      key: '',
+      secret: '',
+      callback: `${strapi.config.server.url}/auth/weixin/callback`,
+      scope: ['email'],
+    },
     apple: {
       enabled: false,
       icon: 'apple',

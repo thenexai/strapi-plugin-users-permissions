@@ -12,7 +12,6 @@ const request = require('request');
 const purest = require('purest')({ request });
 const purestConfig = require('@purest/providers');
 
-const appleSignin = require("apple-signin");
 
 /**
  * Connect thanks to a third-party provider.
@@ -125,7 +124,43 @@ const getProfile = async (provider, query, callback) => {
 
   switch (provider) {
 
+    case 'weixin': {
+      const { Wechat } = require('wechat-jssdk');
+
+      const wx = new Wechat({
+        "appId": grant.weixin.key,
+        "appSecret": grant.weixin.secret,
+      });
+      wx.oauth.getUserInfo(access_token)
+        .then(function (result) {
+
+          // The gender of an ordinary user. 1: male; 2: female.
+          var gender = "Secret";
+          if (result.sex == 1) {
+            gender = "Boy";
+          } else if (result.sex == 2) {
+            gender = "Girl";
+          }
+
+          var uid = "wx" + result.unionid;
+          callback(null, {
+            username: uid,
+            email: uid + "@yoo.cash",
+            name: result.nickname,
+            gender: gender,
+            providerAvatar: result.headimgurl,
+            providerUID: result.unionid,
+          });
+        }).catch(error => {
+          // Token is not verified
+          callback(error);
+        });
+      break;
+    }
+
     case 'apple': {
+
+      const appleSignin = require("apple-signin");
 
       appleSignin.verifyIdToken(access_token).then(result => {
         var randomInt = Math.floor(Math.random() * Math.floor(9999));
@@ -202,25 +237,50 @@ const getProfile = async (provider, query, callback) => {
         });
       break;
     }
+
     case 'google': {
-      const google = purest({ provider: 'google', config: purestConfig });
-      var randomInt = Math.floor(Math.random() * Math.floor(9999));
-      google
-        .query('oauth')
-        .get('tokeninfo')
-        .qs({ access_token })
-        .request((err, res, body) => {
+      var google = require('googleapis').google;
+      var oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials({ access_token: access_token });
+      var oauth2 = google.oauth2({
+        auth: oauth2Client,
+        version: 'v2'
+      });
+      oauth2.userinfo.get(
+        function (err, res) {
           if (err) {
             callback(err);
           } else {
+            var uid = "gg" + res.data.id;
             callback(null, {
-              username: body.email.split('@')[0] + randomInt.toString(),
-              email: body.email,
+              username: uid,
+              email: res.data.email,
+              name: res.data.given_name + ' ' + res.data.family_name,
+              providerAvatar: res.data.picture,
+              providerUID: res.data.id,
             });
           }
         });
+
+      // google
+      //   .query('oauth')
+      //   .get('tokeninfo')
+      //   .qs({ access_token })
+      //   .request((err, res, body) => {
+      //     console.log(body);
+      //     console.log(res);
+      //     if (err) {
+      //       callback(err);
+      //     } else {
+      //       callback(null, {
+      //         username: body.email.split('@')[0] + randomInt.toString(),
+      //         email: body.email,
+      //       });
+      //     }
+      //   });
       break;
     }
+
     case 'github': {
       const github = purest({
         provider: 'github',

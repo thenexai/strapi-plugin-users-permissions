@@ -161,19 +161,21 @@ const getProfile = async (provider, query, callback) => {
     }
 
     case 'apple': {
+      const appleConfig = {
+        // use the bundle ID as client ID for native apps, else use the service ID for web-auth flows
+        // https://forums.developer.apple.com/thread/118135
+        client_id: query.useBundleId === "true" ? grant.apple.key + '.app' : grant.apple.key + '.service',
+        team_id: "C689VFQ237",
+        // redirect_uri: "http://dev.yoo.cash/callback/sign_in_with_apple", // does not matter here, as this is already the callback that verifies the token after the redirection
+        key_id: "WJ67SNFR3R",
+        scope: "name email"
+      };
       const auth = new AppleAuth(
-        {
-          // use the bundle ID as client ID for native apps, else use the service ID for web-auth flows
-          // https://forums.developer.apple.com/thread/118135
-          client_id: grant.apple.key,
-          team_id: "C689VFQ237",
-          redirect_uri: "https://server.yoo.cash/auth/apple/callback", // does not matter here, as this is already the callback that verifies the token after the redirection
-          key_id: "WJ67SNFR3R",
-          scope: "name email"
-        },
+        appleConfig,
         grant.apple.secret.replace(/\|/g, "\n"),
         "text"
       );
+      // console.log(appleConfig);
 
       auth.accessToken(access_token).then(resp => {
         const idToken = jwt.decode(resp.id_token);

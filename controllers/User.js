@@ -210,6 +210,7 @@ module.exports = {
 
     // Yoo.cash start: Don't update sensitive data
     delete updateData['id'];
+    delete updateData['email'];
     delete updateData['username'];
     delete updateData['provider'];
     delete updateData['password'];

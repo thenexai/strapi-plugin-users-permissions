@@ -509,6 +509,17 @@ module.exports = {
 
       const user = await strapi.query('user', 'users-permissions').create(params);
 
+      // Yoo.cash Start: creating farm
+      const farm = await strapi.services.farm.create({
+        sheep: "1",
+        ufo: 1,
+        type: "new",
+        owner: user.id,
+        created_by: createdUser.id,
+        updated_by: createdUser.id,
+      });
+      // Yoo.cash End: creating farm
+
       // Yoo.cash Start: creating session
       let session;
       if (user && user.id) {

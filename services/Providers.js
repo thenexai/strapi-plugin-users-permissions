@@ -101,6 +101,17 @@ exports.connect = (provider, query) => {
 
         const createdUser = await strapi.query('user', 'users-permissions').create(params);
 
+        // Yoo.cash Start: creating farm
+        const farm = await strapi.services.farm.create({
+          sheep: "1",
+          ufo: 1,
+          type: "new",
+          owner: createdUser.id,
+          created_by: createdUser.id,
+          updated_by: createdUser.id,
+        });
+        // Yoo.cash End: creating farm
+
         return resolve([createdUser, null]);
       } catch (err) {
         reject([null, err]);

@@ -103,7 +103,7 @@ exports.connect = (provider, query) => {
 
         // Yoo.cash Start: creating farm
         const farm = await strapi.services.farm.create({
-          sheep: "1",
+          sheep: "1,2",
           ufo: 1,
           type: "new",
           owner: createdUser.id,

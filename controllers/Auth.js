@@ -515,8 +515,8 @@ module.exports = {
         ufo: 1,
         type: "new",
         owner: user.id,
-        created_by: createdUser.id,
-        updated_by: createdUser.id,
+        created_by: user.id,
+        updated_by: user.id,
       });
       // Yoo.cash End: creating farm
 

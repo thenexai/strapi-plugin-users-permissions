@@ -128,9 +128,24 @@ module.exports = {
           })
         );
       } else {
+
+        // Custom Start: creating session
+        let session;
+        if (user && user.id) {
+          session = await strapi.services.session.create({
+            blocked: false,
+            owner: user.id,
+          });
+          session = sanitizeEntity(session, {
+            model: strapi.models.session
+          });
+        }
+        // Custom End: creating session
         ctx.send({
+          sid: session.id, // Yoo Add session to frontend
           jwt: strapi.plugins['users-permissions'].services.jwt.issue({
             id: user.id,
+            sid: session.id // Yoo Add session to jwt
           }),
           user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
             model: strapi.query('user', 'users-permissions').model,
@@ -163,9 +178,24 @@ module.exports = {
         return ctx.badRequest(null, error === 'array' ? error[0] : error);
       }
 
+      // Custom Start: creating session
+      let session;
+      if (user && user.id) {
+        session = await strapi.services.session.create({
+          blocked: false,
+          owner: user.id,
+        });
+        session = sanitizeEntity(session, {
+          model: strapi.models.session
+        });
+      }
+      // Custom End: creating session
+
       ctx.send({
+        sid: session.id, // Yoo Add session to frontend
         jwt: strapi.plugins['users-permissions'].services.jwt.issue({
           id: user.id,
+          sid: session.id // Yoo.Add session to jwt
         }),
         user: sanitizeEntity(user.toJSON ? user.toJSON() : user, {
           model: strapi.query('user', 'users-permissions').model,
@@ -504,18 +534,47 @@ module.exports = {
         return ctx.send({ user: sanitizedUser });
       }
 
-      const jwt = strapi.plugins['users-permissions'].services.jwt.issue(_.pick(user, ['id']));
+      // Yoo Start: creating farm
+      const farm = await strapi.services.farm.create({
+        sheep: "1,2",
+        ufo: 1,
+        type: "new",
+        owner: user.id,
+        created_by: user.id,
+        updated_by: user.id,
+      });
+      // Yoo End: creating farm
+
+      // Yoo Start: creating session
+      let session;
+      if (user && user.id) {
+        session = await strapi.services.session.create({
+          blocked: false,
+          owner: user.id,
+        });
+        session = sanitizeEntity(session, {
+          model: strapi.models.session
+        });
+      }
+      // Yoo End: creating session
+
+
+
+      const jwt = strapi.plugins['users-permissions'].services.jwt.issue(Object.assign({}, _.pick(user, ['id']), {
+        sid: session.id // Yoo Add session to jwt
+      }));
 
       return ctx.send({
+        sid: session.id, // Yoo Add session to frontend
         jwt,
         user: sanitizedUser,
       });
     } catch (err) {
       const adminError = _.includes(err.message, 'username')
         ? {
-            id: 'Auth.form.error.username.taken',
-            message: 'Username already taken',
-          }
+          id: 'Auth.form.error.username.taken',
+          message: 'Username already taken',
+        }
         : { id: 'Auth.form.error.email.taken', message: 'Email already taken' };
 
       ctx.badRequest(null, formatError(adminError));

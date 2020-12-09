@@ -24,22 +24,6 @@ module.exports = async () => {
       enabled: true,
       icon: 'envelope',
     },
-    weixin: {
-      enabled: false,
-      icon: 'weixin',
-      key: '',
-      secret: '',
-      callback: `${strapi.config.server.url}/auth/weixin/callback`,
-      scope: ['email'],
-    },
-    apple: {
-      enabled: false,
-      icon: 'apple',
-      key: '',
-      secret: '',
-      callback: `${strapi.config.server.url}/auth/apple/callback`,
-      scope: ['email'],
-    },
     discord: {
       enabled: false,
       icon: 'discord',
@@ -109,6 +93,23 @@ module.exports = async () => {
       secret: '',
       callback: `${strapi.config.server.url}/auth/twitch/callback`,
       scope: ['user:read:email'],
+    },
+    linkedin: {
+      enabled: false,
+      icon: 'linkedin',
+      key: '',
+      secret: '',
+      callback: `${strapi.config.server.url}/auth/linkedin/callback`,
+      scope: ['r_liteprofile', 'r_emailaddress'],
+    },
+    cognito: {
+      enabled: false,
+      icon: 'aws',
+      key: '',
+      secret: '',
+      subdomain: 'my.subdomain.com',
+      callback: `${strapi.config.server.url}/auth/cognito/callback`,
+      scope: ['email', 'openid', 'profile'],
     },
   };
   const prevGrantConfig = (await pluginStore.get({ key: 'grant' })) || {};

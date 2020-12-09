@@ -1,21 +1,6 @@
 {
   "routes": [
     {
-      "method": "PUT",
-      "path": "/users/me",
-      "handler": "User.updateMe",
-      "config": {
-        "policies": [],
-        "prefix": "",
-        "description": "Update current user",
-        "tag": {
-          "plugin": "users-permissions",
-          "name": "User",
-          "actionType": "update"
-        }
-      }
-    },
-    {
       "method": "GET",
       "path": "/",
       "handler": "UsersPermissions.index",
@@ -51,12 +36,7 @@
       "handler": "UsersPermissions.getRole",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.roles.read"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.roles.read"]]
         ],
         "description": "Retrieve a role depending on its id",
         "tag": {
@@ -72,12 +52,7 @@
       "handler": "UsersPermissions.getRoles",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.roles.create"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.roles.read"]]
         ],
         "description": "Retrieve all role documents",
         "tag": {
@@ -101,12 +76,7 @@
       "handler": "UsersPermissions.getEmailTemplate",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.email-templates.read"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.email-templates.read"]]
         ]
       }
     },
@@ -116,12 +86,7 @@
       "handler": "UsersPermissions.updateEmailTemplate",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.email-templates.update"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.email-templates.update"]]
         ]
       }
     },
@@ -131,12 +96,7 @@
       "handler": "UsersPermissions.getAdvancedSettings",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.advanced-settings.read"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.advanced-settings.read"]]
         ]
       }
     },
@@ -146,12 +106,7 @@
       "handler": "UsersPermissions.updateAdvancedSettings",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.advanced-settings.update"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.advanced-settings.update"]]
         ]
       }
     },
@@ -169,27 +124,18 @@
       "handler": "UsersPermissions.getProviders",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.providers.read"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.providers.read"]]
         ]
       }
     },
+
     {
       "method": "PUT",
       "path": "/providers",
       "handler": "UsersPermissions.updateProviders",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.providers.update"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.providers.update"]]
         ]
       }
     },
@@ -199,12 +145,7 @@
       "handler": "UsersPermissions.createRole",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.roles.create"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.roles.create"]]
         ],
         "description": "Create a new role",
         "tag": {
@@ -220,12 +161,7 @@
       "handler": "UsersPermissions.updateRole",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.roles.update"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.roles.update"]]
         ],
         "description": "Update a role",
         "tag": {
@@ -241,12 +177,7 @@
       "handler": "UsersPermissions.deleteRole",
       "config": {
         "policies": [
-          [
-            "admin::hasPermissions",
-            [
-              "plugins::users-permissions.roles.delete"
-            ]
-          ]
+          ["admin::hasPermissions", ["plugins::users-permissions.roles.delete"]]
         ],
         "description": "Delete a role",
         "tag": {
@@ -261,9 +192,7 @@
       "path": "/connect/*",
       "handler": "Auth.connect",
       "config": {
-        "policies": [
-          "plugins::users-permissions.ratelimit"
-        ],
+        "policies": ["plugins::users-permissions.ratelimit"],
         "prefix": "",
         "description": "Connect a provider",
         "tag": {
@@ -277,9 +206,7 @@
       "path": "/auth/local",
       "handler": "Auth.callback",
       "config": {
-        "policies": [
-          "plugins::users-permissions.ratelimit"
-        ],
+        "policies": ["plugins::users-permissions.ratelimit"],
         "prefix": "",
         "description": "Login a user using the identifiers email and password",
         "tag": {
@@ -293,9 +220,7 @@
       "path": "/auth/local/register",
       "handler": "Auth.register",
       "config": {
-        "policies": [
-          "plugins::users-permissions.ratelimit"
-        ],
+        "policies": ["plugins::users-permissions.ratelimit"],
         "prefix": "",
         "description": "Register a new user with the default role",
         "tag": {
@@ -324,9 +249,7 @@
       "path": "/auth/forgot-password",
       "handler": "Auth.forgotPassword",
       "config": {
-        "policies": [
-          "plugins::users-permissions.ratelimit"
-        ],
+        "policies": ["plugins::users-permissions.ratelimit"],
         "prefix": "",
         "description": "Send the reset password email link",
         "tag": {
@@ -340,9 +263,7 @@
       "path": "/auth/reset-password",
       "handler": "Auth.resetPassword",
       "config": {
-        "policies": [
-          "plugins::users-permissions.ratelimit"
-        ],
+        "policies": ["plugins::users-permissions.ratelimit"],
         "prefix": "",
         "description": "Reset user password with a code (resetToken)",
         "tag": {

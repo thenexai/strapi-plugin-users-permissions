@@ -119,8 +119,12 @@ module.exports = {
     if (!user) {
       return ctx.badRequest(null, [{ messages: [{ id: 'No authorization header was found' }] }]);
     }
+    const newUser = await strapi.query('user', 'users-permissions').findOne({
+      id: user.id
+    });
 
-    ctx.body = sanitizeUser(user);
+    ctx.body = sanitizeUser(newUser);
+    // ctx.body = sanitizeUser(user);
   },
 
   /**
